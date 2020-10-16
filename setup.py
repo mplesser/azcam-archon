@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name="azcam-archon",
     version="20.1",
-    description="azcam entension for STA Archon controllers",
+    description="azcam extension for STA Archon controllers",
     long_description=long_description,
     author="Michael Lesser",
     author_email="mlesser@arizona.edu",
