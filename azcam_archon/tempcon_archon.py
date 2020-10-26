@@ -43,7 +43,7 @@ class TempConArchon(TempCon):
         if not azcam.api.controller.heater_board_installed:
             return 3 * [self.bad_temp_value]
 
-        # Don't read hardware while exposure is in progess, return last values read
+        # don't read hardware while exposure is in progess, return last values read
         flag = azcam.api.exposure.exposure_flag
         if flag != azcam.db.exposureflags["NONE"]:
             return self.last_temps
@@ -69,11 +69,9 @@ class TempConArchon(TempCon):
         """
 
         if not self.enabled:
-            # azcam.AzcamWarning("Tempcon not enabled")
             return -999.9
 
         if not self.initialized:
-            # azcam.AzcamWarning("Tempcon not initialized")
             return -999.9
 
         if not azcam.api.controller.heater_board_installed:
@@ -90,7 +88,7 @@ class TempConArchon(TempCon):
         elif temperature_id == 2:
             Address = "MOD2/TEMPC"
         else:
-            return "ERROR bad temperature_id"
+            raise azcam.AzcamError("bad temperature_id")
 
         # Don't read hardware while exposure is in progess
         flag = azcam.api.exposure.exposure_flag
