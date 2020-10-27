@@ -3,7 +3,7 @@ Contains the base TempConArchon class.
 """
 
 import azcam
-from azcam.tempcons.tempcon import TempCon
+from azcam.tempcon import TempCon
 
 
 class TempConArchon(TempCon):

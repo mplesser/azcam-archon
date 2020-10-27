@@ -8,7 +8,7 @@ import time
 import numpy
 
 import azcam
-from azcam.exposures.exposure import Exposure
+from azcam.exposure import Exposure
 from azcam.functions.fits import pyfits
 
 

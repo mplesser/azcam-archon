@@ -7,7 +7,7 @@ import time
 
 import azcam
 import azcam.sockets
-from azcam.controllers.controller import Controller
+from azcam.controller import Controller
 
 # Exposure states
 EXP_UNKNOWN = 0
