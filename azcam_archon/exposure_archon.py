@@ -2,13 +2,14 @@
 Contains the ExposureArchon class.
 """
 
-import numpy
 import os
 import time
 
+import numpy
+
 import azcam
-from azcam.functions.fits import pyfits
 from azcam.exposures.exposure import Exposure
+from azcam.functions.fits import pyfits
 
 
 class ExposureArchon(Exposure):

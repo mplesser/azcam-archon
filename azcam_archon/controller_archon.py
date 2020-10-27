@@ -3,10 +3,10 @@ Contains the ControllerArchon class.
 """
 
 import socket
-import azcam.sockets
 import time
 
 import azcam
+import azcam.sockets
 from azcam.controllers.controller import Controller
 
 # Exposure states
