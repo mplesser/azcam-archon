@@ -6,6 +6,16 @@ Client-side commands for Archon controller.
 import azcam
 
 
+def _get_rds():
+    rcds = xxx.get_attr("controller", "rcds")  # old command not working
+    return rcds
+
+
+def _set_cds(cds):
+    xxx.set_attr("controller", "ucds", cds)  # old command not working
+    return
+
+
 def get_cds():
     """
     Get the controller CDS values.
@@ -15,7 +25,7 @@ def get_cds():
     azcam.api.rcommand("controller.get_cds")
 
     # get values
-    reply = azcam.api.get_attr("controller", "rcds")
+    reply = _get_rds()
 
     # make lists
     tokens = azcam.utils.parse(reply)
@@ -46,7 +56,7 @@ def set_cds(taps, gains, offsets):
         s = "%s, %.01f, %05d" % (taps[i], gains[i], offsets[i])
         cds.append(s)
 
-    azcam.api.set_attr("controller", "ucds", cds)
+    _set_cds(cds)
 
     azcam.api.rcommand("controller.update_cds")
 
