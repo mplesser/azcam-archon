@@ -22,7 +22,7 @@ def get_cds():
     """
 
     # load CDS values into rcds on server
-    azcam.api.rcommand("controller.get_cds")
+    azcam.api.serverconn.rcommand("controller.get_cds")
 
     # get values
     reply = _get_rds()
@@ -58,7 +58,7 @@ def set_cds(taps, gains, offsets):
 
     _set_cds(cds)
 
-    azcam.api.rcommand("controller.update_cds")
+    azcam.api.serverconn.rcommand("controller.update_cds")
 
     return
 
