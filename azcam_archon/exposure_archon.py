@@ -9,7 +9,7 @@ import numpy
 
 import azcam
 from azcam.exposure import Exposure
-from azcam.functions.fits import pyfits
+from azcam.fits import pyfits
 
 
 class ExposureArchon(Exposure):
