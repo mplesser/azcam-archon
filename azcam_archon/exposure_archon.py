@@ -316,7 +316,7 @@ class ArchonFileConverter(object):
 
         # values read from the configuration file
         self.detname = ""
-        self.detnum = []
+        self.det_number = []
         self.detpos_x = []
         self.detpos_y = []
         self.extpos_x = []
@@ -326,13 +326,13 @@ class ArchonFileConverter(object):
         self.roi = []
         self.amppix1 = []
         self.amppix2 = []
-        self.ampcfg = []
-        self.extname = []
-        self.extnum = []
-        self.jpgext = []
+        self.amp_cfg = []
+        self.ext_name = []
+        self.ext_number = []
+        self.jpg_ext = []
         self.amppos1 = []
         self.amppos2 = []
-        self.ampcfg = []
+        self.amp_cfg = []
 
         self.ns_total = 0
         self.ns_predark = 0
@@ -421,17 +421,17 @@ class ArchonFileConverter(object):
                         + self.extpos_x[posAmp]
                         - 1
                     )
-                    if self.ampcfg[posAmp] == 0:
+                    if self.amp_cfg[posAmp] == 0:
                         # no flip
                         self.o_data[indxAmp][
                             currLine * self.PIXELS : (currLine + 1) * self.PIXELS
                         ] = self.NData[cntLine]
-                    elif self.ampcfg[posAmp] == 1:
+                    elif self.amp_cfg[posAmp] == 1:
                         # flip X
                         self.o_data[indxAmp][
                             currLine * self.PIXELS : (currLine + 1) * self.PIXELS
                         ] = self.NData[cntLine][::-1]
-                    elif self.ampcfg[posAmp] == 2:
+                    elif self.amp_cfg[posAmp] == 2:
                         # flip Y
                         self.o_data[indxAmp][
                             (self.LINES - currLine - 1)
@@ -463,21 +463,21 @@ class ArchonFileConverter(object):
         """
 
         self.detname = sensor_data["name"]
-        self.detnum = sensor_data["detnum"]
+        self.det_number = sensor_data["det_number"]
         self.detformat = sensor_data["format"]
         self.focalplane = sensor_data["focalplane"]
         self.roi = sensor_data["roi"]
-        self.extname = sensor_data["extname"]
-        self.extnum = sensor_data["extnum"]
-        self.jpgext = sensor_data["jpg_order"]
-        self.ampcfg = sensor_data["ampcfg"]
+        self.ext_name = sensor_data["ext_name"]
+        self.ext_number = sensor_data["ext_number"]
+        self.jpg_ext = sensor_data["jpg_order"]
+        self.amp_cfg = sensor_data["amp_cfg"]
 
-        self.extpos_x = [x[0] for x in sensor_data["extension_position"]]
-        self.extpos_y = [x[1] for x in sensor_data["extension_position"]]
+        self.extpos_x = [x[0] for x in sensor_data["ext_position"]]
+        self.extpos_y = [x[1] for x in sensor_data["ext_position"]]
         self.amppos1 = [x[0] for x in sensor_data["amp_position"]]
         self.amppos2 = [x[1] for x in sensor_data["amp_position"]]
-        self.detpos_x = [x[0] for x in sensor_data["detpos"]]
-        self.detpos_y = [x[1] for x in sensor_data["detpos"]]
+        self.detpos_x = [x[0] for x in sensor_data["det_position"]]
+        self.detpos_y = [x[1] for x in sensor_data["det_position"]]
         self.amppix1 = [x[0] for x in sensor_data["amp_pixel_position"]]
         self.amppix2 = [x[1] for x in sensor_data["amp_pixel_position"]]
 

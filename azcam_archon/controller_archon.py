@@ -174,7 +174,7 @@ class ControllerArchon(Controller):
         # CDS parameters read from the Archon controller
         self.rcds = []
 
-        # CDS parameters string updated from the console
+        # CDS parameters string for console update
         self.ucds = ""
 
         # Total number of taplines
@@ -772,10 +772,13 @@ class ControllerArchon(Controller):
 
         return self.archon_command(cmd)
 
-    def update_cds(self):
+    def update_cds(self, ucds=None):
         """
-        Updates TAPLINES values based on self.strcds.
+        Updates TAPLINES values based on space-delimited string string.
         """
+
+        if ucds is not None:
+            self.ucds = ucds
 
         temp = self.ucds[1 : len(self.ucds) - 1]
 
