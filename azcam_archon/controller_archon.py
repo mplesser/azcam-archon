@@ -864,16 +864,6 @@ class ControllerArchon(Controller):
         elif self.power_status != "ON":
             raise azcam.AzcamError("Bad power status")
 
-        # get dewar name - not used
-        """
-        reply = self.get_parameter("ITLDEWAR")
-        if reply is not None:
-            self.dewar_number = int(reply)
-        else:
-            self.dewar_number = 0
-        azcam.log("Controller reports dewar number %d" % self.dewar_number, level=1)
-        """
-
         self.initialized = 1
 
         return

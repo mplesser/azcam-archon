@@ -254,9 +254,9 @@ class ExposureArchon(Exposure):
         try:
             shutterstate = self.shutter_dict[self.image_type]
         except KeyError:
-            shutterstate = "open"  # other types are comps, so open shutter
+            shutterstate = 1  # other types are comps, so open shutter
 
-        if shutterstate == "open":
+        if shutterstate:
             azcam.api.controller.set_int_ms(int(self.exposure_time * 1000))
             azcam.api.controller.set_no_int_ms(0)
         else:
