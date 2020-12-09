@@ -476,7 +476,6 @@ class ControllerArchon(Controller):
 
         # start the counter
         cnt = 0x0000
-        prn = 0
 
         azcam.log("Uploading configuration data to controller", level=2)
 
@@ -504,10 +503,6 @@ class ControllerArchon(Controller):
                 self.dict_wconfig[item[0]] = cnt
                 self.archon_command(cmd)
                 cnt += 1
-                prn += 1
-
-                if prn > 100:
-                    prn = 0
 
         self.poll(1)
 
@@ -575,16 +570,11 @@ class ControllerArchon(Controller):
             azcam.log("Downloading configuration data from controller.", level=2)
             cnt = 0x0000
             endCfg = 0
-            prn = 0
 
             while endCfg != 1:
                 cmd = "RCONFIG%04X" % (cnt & 0xFFFF)
                 reply = self.archon_command(cmd)
                 cnt += 1
-                prn += 1
-
-                if prn > 100:
-                    prn = 0
 
                 if len(reply) > 0:
                     self.config_data.append(reply)
@@ -611,38 +601,6 @@ class ControllerArchon(Controller):
                 self.config_data[int(self.dict_wconfig[paramStr])]
             )
             self.dict_params[paramName] = paramStr
-
-        """
-        # Swap 'Exposures' with the last parameter
-        newPos = self.dict_wconfig[self.dict_params["Exposures"]] - int(
-            self.dict_wconfig["PARAMETER0"]
-        )
-
-        # lastParamVal = 'PARAMETER' + str(newPos) + '=' + self.dict_config['PARAMETER' + str(paramCnt - 1)]
-        if self.dict_config["PARAMETER" + str(paramCnt - 1)] == "":
-            lastParamVal = (
-                "PARAMETER"
-                + str(newPos)
-                + "="
-                + self.dict_config["PARAMETER" + str(paramCnt - 2)]
-            )
-        else:
-            lastParamVal = (
-                "PARAMETER"
-                + str(newPos)
-                + "="
-                + self.dict_config["PARAMETER" + str(paramCnt - 1)]
-            )
-        expParamVal = (
-            "PARAMETER"
-            + str(paramCnt - 1)
-            + "="
-            + self.dict_config[self.dict_params["Exposures"]]
-        )
-
-        self.config_params[paramCnt - 1] = expParamVal
-        self.config_params[newPos] = lastParamVal
-        """
 
         # update configuration data
         firstParam = self.dict_wconfig["PARAMETER0"]
@@ -683,18 +641,12 @@ class ControllerArchon(Controller):
         self.sweep_cnt = sweep_cnt[1]
 
         IntMS = self.dict_config[self.dict_params["IntMS"]].replace('"', "").split("=")
-        self.int_ms = IntMS[1]
+        self.int_ms = int(IntMS[1])
 
         NoIntMS = (
             self.dict_config[self.dict_params["NoIntMS"]].replace('"', "").split("=")
         )
-        self.noint_ms = NoIntMS[1]
-
-        azcam.log("-----> ContinuousExposures = ", self.cont_exp, level=3)
-        azcam.log("-----> Exposures = ", self.exp, level=3)
-        azcam.log("-----> SweepCount = ", self.sweep_cnt, level=3)
-        azcam.log("-----> IntMS = ", self.int_ms, level=3)
-        azcam.log("-----> NoIntMS = ", self.noint_ms, level=3)
+        self.noint_ms = int(NoIntMS[1])
 
         # Config data is valid
         self.config_ok = 1
@@ -717,13 +669,17 @@ class ControllerArchon(Controller):
             else:
                 raise azcam.AzcamError("Power status not OFF or NOT_CONFIGURED")
 
-        azcam.log("Configuration data updated", level=2)
-
         return
 
     def power_on(self, wait=1):
         """
-        Turns power on"""
+        Turns power on
+        """
+
+        # if already on, don't try due to status error
+        reply = self.get_power_status()
+        if reply == "ON":
+            return
 
         cmd = "POWERON"
 
@@ -1097,8 +1053,8 @@ class ControllerArchon(Controller):
         if not self.config_ok:
             raise azcam.AzcamError("Configuration data not loaded")
 
-        self.exp_time_ms = ExpTimeMS
-        self.int_ms = ExpTimeMS
+        self.exp_time_ms = int(ExpTimeMS)
+        self.int_ms = int(ExpTimeMS)
 
         # update config dictionary
         self.dict_config[self.dict_params["IntMS"]] = "IntMS=%s" % (self.int_ms)
@@ -1145,8 +1101,8 @@ class ControllerArchon(Controller):
         if not self.config_ok:
             raise azcam.AzcamError("Configuration data not loaded")
 
-        self.exp_time_ms = IntMS
-        self.int_ms = IntMS
+        self.exp_time_ms = int(IntMS)
+        self.int_ms = int(IntMS)
 
         # special for long exposure times - IN PROGRESS
         ms = IntMS
@@ -1238,7 +1194,7 @@ class ControllerArchon(Controller):
         if not self.config_ok:
             raise azcam.AzcamError("Configuration data not loaded")
 
-        self.noint_ms = NoIntMS
+        self.noint_ms = int(NoIntMS)
 
         # special for long exposure times - IN PROGRESS
         ms = NoIntMS
@@ -1442,18 +1398,28 @@ class ControllerArchon(Controller):
 
         # Connect to controller
         self.connect()
+        if not self.connected_controller:
+            raise azcam.AzcamError("coud not connect to controller")
 
         self.warmboot()
+        self.disconnect()
 
-        # Wait at least 3 sec before trying to send any command to the controller
-        time.sleep(5)
+        # Wait before trying to send any command to the controller
+        time.sleep(3)
 
         # Wait up to 30 sec for the controller to finish the boot sequence
         cnt = 0
-
         while cnt < 30:
-            time.sleep(1)
-            self.get_status()
+            self.connect()
+            if not self.connected_controller:
+                time.sleep(1)
+                continue
+
+            try:
+                self.get_status()
+            except ConnectionResetError:
+                time.sleep(1)
+                pass
             if self.status_valid == 1:
                 cnt = 30
             else:
@@ -1462,7 +1428,7 @@ class ControllerArchon(Controller):
         if self.status_valid != 1:
             raise azcam.AzcamError("Controller reboot error")
 
-        # connect to controller
+        # reconnect to controller
         self.connect()
 
         # load configuration file
