@@ -2,16 +2,23 @@
 Client-side commands for Archon controller.
 """
 
+import sys
+from types import MethodType
+import inspect
 
 import azcam
+from azcam import api
 
 
-def get_cds():
+def get_cds(self):
     """
     Get the controller CDS values.
     """
 
-    reply = azcam.api.serverconn.rcommand("controller.get_cds")
+    reply = azcam.api.server.rcommand("controller.get_cds")
+
+    if not reply:
+        return
 
     # make lists
     tokens = azcam.utils.parse(reply)
@@ -27,7 +34,7 @@ def get_cds():
     return taps, gains, offsets
 
 
-def set_cds(taps, gains, offsets):
+def set_cds(self, taps, gains, offsets):
     """
     Set the controller CDS values.
     :param offsets:
@@ -42,14 +49,14 @@ def set_cds(taps, gains, offsets):
         s = "%s, %.01f, %05d" % (taps[i], gains[i], offsets[i])
         cds.append(s)
 
-    azcam.api.serverconn.rcommand(f"controller.update_cds {cds}")
+    azcam.api.server.rcommand(f"controller.update_cds {cds}")
 
-    azcam.api.serverconn.rcommand("controller.update_cds")
+    azcam.api.server.rcommand("controller.update_cds")
 
     return
 
 
-def set_biaslevels(imagefilename="test.fits", cycles=1, goal=1000):
+def set_biaslevels(self, imagefilename="test.fits", cycles=1, goal=1000):
     """
     Set controller bias levels from zero image.
     :param goal:
@@ -107,7 +114,7 @@ def set_biaslevels(imagefilename="test.fits", cycles=1, goal=1000):
     return
 
 
-def set_offsets(offset=1000):
+def set_offsets(self, offset=1000):
     """
     Set all channels to the same bias offset.
     :param offset:
@@ -120,3 +127,9 @@ def set_offsets(offset=1000):
     set_cds(taps, gains, offsets)
 
     return
+
+
+# add methods to api.controller
+for mod in inspect.getmembers(sys.modules[__name__]):
+    if inspect.isfunction(mod[1]):
+        setattr(api.controller, mod[0], MethodType(mod[1], api.controller))
