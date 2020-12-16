@@ -450,11 +450,7 @@ class ControllerArchon(Controller):
             self.archon_command(cmd)
 
             indxParam = self.dict_wconfig["PIXELCOUNT"]
-            cmd = "WCONFIG%04X%s=%s" % (
-                indxParam & 0xFFFF,
-                "PIXELCOUNT",
-                str(Pixels),
-            )
+            cmd = "WCONFIG%04X%s=%s" % (indxParam & 0xFFFF, "PIXELCOUNT", str(Pixels),)
             self.archon_command(cmd)
 
         return
