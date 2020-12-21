@@ -12,7 +12,7 @@ class TempConArchon(TempCon):
     Requires MOD2 to be the HEATERX board.
     """
 
-    def __init__(self, obj_id="tempcon", name="Tempcon"):
+    def __init__(self, obj_id="tempcon", name="tempcon_archon"):
 
         super().__init__(obj_id, name)
 

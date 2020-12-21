@@ -29,10 +29,8 @@ class ExposureArchon(Exposure):
         # add extra extensions for additional non-image data
         self.add_extensions = 0
 
-        try:
+        if "controller" in self.objects_init:
             self.objects_init.remove("controller")
-        except Exception:
-            pass
 
     def abort(self):
         """
@@ -132,9 +130,7 @@ class ExposureArchon(Exposure):
             dtype="uint16",
         )
 
-        self.fileconverter.copy_to_buffer(
-            azcam.api.controller.imagedata, self.image.data
-        )
+        self.fileconverter.copy_to_buffer(azcam.api.controller.imagedata, self.image.data)
 
         # why is this necessary?
         self.image.data.reshape(
@@ -157,12 +153,8 @@ class ExposureArchon(Exposure):
         et = float(int(self.exposure_time_actual * 1000.0) / 1000.0)
         self.dark_time = et  # does not yet include pause/resume
         dt = float(int(self.dark_time * 1000.0) / 1000.0)
-        azcam.db.headers["exposure"].set_keyword(
-            "EXPTIME", et, "Exposure time (seconds)", float
-        )
-        azcam.db.headers["exposure"].set_keyword(
-            "DARKTIME", dt, "Dark time (seconds)", float
-        )
+        azcam.db.headers["exposure"].set_keyword("EXPTIME", et, "Exposure time (seconds)", float)
+        azcam.db.headers["exposure"].set_keyword("DARKTIME", dt, "Dark time (seconds)", float)
 
         self.image.write_file(LocalFile, self.filetype)
 
@@ -415,9 +407,7 @@ class ArchonFileConverter(object):
                 for posX in range(0, self.numseramps):
                     posAmp = posX + currPart
                     indxAmp = (
-                        (self.extpos_y[posAmp] - 1) * self.numseramps
-                        + self.extpos_x[posAmp]
-                        - 1
+                        (self.extpos_y[posAmp] - 1) * self.numseramps + self.extpos_x[posAmp] - 1
                     )
                     if self.amp_cfg[posAmp] == 0:
                         # no flip
@@ -537,10 +527,7 @@ class ReceiveDataArchon(object):
         # chunkSize = 1024 * BURST_LEN
         rawBlockSize = 2048
 
-        if (
-            azcam.api.controller.read_buffer > 0
-            and azcam.api.controller.read_buffer < 4
-        ):
+        if azcam.api.controller.read_buffer > 0 and azcam.api.controller.read_buffer < 4:
 
             frameBase = "BUF%d" % (azcam.api.controller.read_buffer)
             frame = frameBase + "FRAME"
@@ -553,21 +540,15 @@ class ReceiveDataArchon(object):
                 frameW = int(azcam.api.controller.dict_frame[frameBase + "WIDTH"])
                 frameH = int(azcam.api.controller.dict_frame[frameBase + "HEIGHT"])
                 # get sample mode
-                sampleMode = (
-                    int(azcam.api.controller.dict_frame[frameBase + "SAMPLE"]) + 1
-                )
+                sampleMode = int(azcam.api.controller.dict_frame[frameBase + "SAMPLE"]) + 1
 
                 # calculate fetch command values
                 frameSize = sampleMode * 2 * frameW * frameH
                 lines = int((frameSize + lineSize - 1) / lineSize)
-                rawBlocks = int(
-                    azcam.api.controller.dict_frame[frameBase + "RAWBLOCKS"]
-                )
+                rawBlocks = int(azcam.api.controller.dict_frame[frameBase + "RAWBLOCKS"])
                 rawLines = int(azcam.api.controller.dict_frame[frameBase + "RAWLINES"])
                 rawSize = rawBlocks * rawLines * rawBlockSize
-                rawOffset = int(
-                    azcam.api.controller.dict_frame[frameBase + "RAWOFFSET"]
-                )
+                rawOffset = int(azcam.api.controller.dict_frame[frameBase + "RAWOFFSET"])
 
                 cmd = "FETCH%08X%08X" % (addr, lines)
 
@@ -620,15 +601,11 @@ class ReceiveDataArchon(object):
 
                             lData = int(currBytes + 4)
                             ImageBufferTemp = numpy.ndarray(
-                                shape=(int(pixCnt)),
-                                dtype="<u2",
-                                buffer=dataBuff[4:lData],
+                                shape=(int(pixCnt)), dtype="<u2", buffer=dataBuff[4:lData],
                             )
 
                             lData = int(totalPix + pixCnt)
-                            self.TData[totalPix:lData] = ImageBufferTemp[
-                                0 : int(pixCnt)
-                            ]
+                            self.TData[totalPix:lData] = ImageBufferTemp[0 : int(pixCnt)]
                             totalPix += pixCnt
 
                             dataBuff = dataBuff[1028:]
@@ -677,9 +654,7 @@ class ReceiveDataArchon(object):
                         self.RData = numpy.empty(shape=int(rawSize / 2), dtype="<u2")
 
                         while totalRecv < totalBytes:
-                            getData = azcam.api.controller.camserver.socket.recv(
-                                currLine
-                            )
+                            getData = azcam.api.controller.camserver.socket.recv(currLine)
 
                             totalRecv += len(getData)
 
@@ -698,23 +673,17 @@ class ReceiveDataArchon(object):
 
                                     lData = int(currBytes + 4)
                                     ImageBufferTemp = numpy.ndarray(
-                                        shape=(int(pixCnt)),
-                                        dtype="<u2",
-                                        buffer=dataBuff[4:lData],
+                                        shape=(int(pixCnt)), dtype="<u2", buffer=dataBuff[4:lData],
                                     )
 
                                     lData = int(totalPix + pixCnt)
-                                    self.RData[totalPix:lData] = ImageBufferTemp[
-                                        0 : int(pixCnt)
-                                    ]
+                                    self.RData[totalPix:lData] = ImageBufferTemp[0 : int(pixCnt)]
                                     totalPix += pixCnt
 
                                     dataBuff = dataBuff[1028:]
                                 else:
                                     azcam.log(
-                                        "-----> dataBuff length:",
-                                        len(dataBuff),
-                                        level=3,
+                                        "-----> dataBuff length:", len(dataBuff), level=3,
                                     )
                                     azcam.log("ERROR ", dataBuff[:4].decode(), level=3)
                                     totalRecv = totalBytes
