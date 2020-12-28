@@ -41,8 +41,8 @@ class ExposureArchon(Exposure):
 
         azcam.api.controller.archon_command("RESETTIMING")
 
-        if self.exposure_flag != azcam.db.exposureflags["NONE"]:
-            self.exposure_flag = azcam.db.exposureflags["ABORT"]
+        if self.exposure_flag != self.exposureflags["NONE"]:
+            self.exposure_flag = self.exposureflags["ABORT"]
 
         return
 
@@ -51,8 +51,8 @@ class ExposureArchon(Exposure):
         Immediate exposure readout.
         """
 
-        if self.exposure_flag != azcam.db.exposureflags["NONE"]:
-            self.exposure_flag = azcam.db.exposureflags["READ"]
+        if self.exposure_flag != self.exposureflags["NONE"]:
+            self.exposure_flag = self.exposureflags["READ"]
 
         azcam.api.controller.archon_command("FASTLOADPARAM StopExposure 1")
         time.sleep(0.1)
@@ -94,7 +94,7 @@ class ExposureArchon(Exposure):
         if self.image_type == "zero":
             self.exposure_time = self.exposure_time_saved
 
-        self.exposure_flag == azcam.db.exposureflags["READ"]
+        self.exposure_flag == self.exposureflags["READ"]
 
         # azcam.log("Integration finished", level=2)
 
@@ -105,7 +105,7 @@ class ExposureArchon(Exposure):
         Completes an exposure by writing file and displaying image.
         """
 
-        self.exposure_flag = azcam.db.exposureflags["WRITING"]
+        self.exposure_flag = self.exposureflags["WRITING"]
 
         if self.image.remote_imageserver_flag:
             LocalFile = self.temp_image_file + "." + self.get_extname(self.filetype)
@@ -220,7 +220,7 @@ class ExposureArchon(Exposure):
         if self.save_file:
             self.increment_filenumber()
 
-        self.exposure_flag = azcam.db.exposureflags["NONE"]
+        self.exposure_flag = self.exposureflags["NONE"]
 
         return
 
@@ -601,7 +601,9 @@ class ReceiveDataArchon(object):
 
                             lData = int(currBytes + 4)
                             ImageBufferTemp = numpy.ndarray(
-                                shape=(int(pixCnt)), dtype="<u2", buffer=dataBuff[4:lData],
+                                shape=(int(pixCnt)),
+                                dtype="<u2",
+                                buffer=dataBuff[4:lData],
                             )
 
                             lData = int(totalPix + pixCnt)
@@ -673,7 +675,9 @@ class ReceiveDataArchon(object):
 
                                     lData = int(currBytes + 4)
                                     ImageBufferTemp = numpy.ndarray(
-                                        shape=(int(pixCnt)), dtype="<u2", buffer=dataBuff[4:lData],
+                                        shape=(int(pixCnt)),
+                                        dtype="<u2",
+                                        buffer=dataBuff[4:lData],
                                     )
 
                                     lData = int(totalPix + pixCnt)
@@ -683,7 +687,9 @@ class ReceiveDataArchon(object):
                                     dataBuff = dataBuff[1028:]
                                 else:
                                     azcam.log(
-                                        "-----> dataBuff length:", len(dataBuff), level=3,
+                                        "-----> dataBuff length:",
+                                        len(dataBuff),
+                                        level=3,
                                     )
                                     azcam.log("ERROR ", dataBuff[:4].decode(), level=3)
                                     totalRecv = totalBytes

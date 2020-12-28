@@ -45,7 +45,7 @@ class TempConArchon(TempCon):
 
         # don't read hardware while exposure is in progess, return last values read
         flag = azcam.api.exposure.exposure_flag
-        if flag != azcam.db.exposureflags["NONE"]:
+        if flag != azcam.api.exposure.exposureflags["NONE"]:
             return self.last_temps
 
         camtemp = self.get_temperature(0)
@@ -92,7 +92,7 @@ class TempConArchon(TempCon):
 
         # Don't read hardware while exposure is in progess
         flag = azcam.api.exposure.exposure_flag
-        if flag != azcam.db.exposureflags["NONE"]:
+        if flag != azcam.api.exposure.exposureflags["NONE"]:
             return self.last_temps[temperature_id]
 
         # read temperature
