@@ -4,7 +4,9 @@
 
 ## Installation
 
-Download from github: https://github.com/mplesser/azcam-archon.git.
+`pip install azam-archon`
+
+Or download from github: https://github.com/mplesser/azcam-archon.git.
 
 ## Example Code
 
