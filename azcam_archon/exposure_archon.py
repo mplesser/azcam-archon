@@ -169,14 +169,6 @@ class ExposureArchon(Exposure):
 
             azcam.api.controller.get_status()  # get current controller data
 
-            # hdu17 is Test Conditions extension
-            hdu17 = pyfits.BinTableHDU()
-
-            # hdu18 is CCD Operating Conditions extension
-            hdu18 = pyfits.BinTableHDU()
-
-            # hdu19 is Site-Specific extension
-
             # create data arrays
             keywords = []
             values = []
@@ -186,9 +178,9 @@ class ExposureArchon(Exposure):
             for key in azcam.api.controller.dict_status:
                 keywords.append(key)
                 values.append(azcam.api.controller.dict_status[key])
-                datatypes.append("unknown")
-                units.append("a unit")
-                comments.append("a comment")
+                datatypes.append("datatype")
+                units.append("unit")
+                comments.append("comment")
 
             # make table columns
             c1 = pyfits.Column(name="Keyword", format="20A", array=keywords)
@@ -197,13 +189,11 @@ class ExposureArchon(Exposure):
             c4 = pyfits.Column(name="Units", format="20A", array=units)
             c5 = pyfits.Column(name="Comment", format="80A", array=comments)
             coldefs = pyfits.ColDefs([c1, c2, c3, c4, c5])
-            hdu19 = pyfits.BinTableHDU.from_columns(coldefs)
+            hdu_conpars = pyfits.BinTableHDU.from_columns(coldefs, name="CONPARS")
 
             # append HDU's to image file
             with pyfits.open(LocalFile, mode="update") as hdulist:
-                hdulist.append(hdu17)
-                hdulist.append(hdu18)
-                hdulist.append(hdu19)
+                hdulist.append(hdu_conpars)
 
         azcam.log(f"Writing finished: {LocalFile}", level=2)
 
@@ -569,15 +559,6 @@ class ReceiveDataArchon(object):
 
                 cmd = "FETCH%08X%08X" % (addr, lines)
 
-                """
-                size = (
-                    (int(controller.dict_frame[frameBase + "SAMPLE"]) + 1)
-                    * 2
-                    * int(controller.dict_frame[frameBase + "HEIGHT"])
-                    * int(controller.dict_frame[frameBase + "WIDTH"])
-                )
-                """
-
                 azcam.api.controller.archon_bin_command(cmd)
 
                 # frameSize = frameSize + 4
@@ -636,10 +617,10 @@ class ReceiveDataArchon(object):
 
                 azcam.log("----> totalRecv =", totalRecv, level=3)
                 if totalRecv == totalBytes:
-                    self.image.valid = 1
+                    self.exposure.image.valid = 1
                     self.pixels_remaining = 0
                     azcam.api.controller.imagedata = self.TData
-                    self.image.data = self.TData
+                    self.exposure.image.data = self.TData
 
                     if azcam.api.controller.rawdata_enable == 1:
                         # receive rad data
