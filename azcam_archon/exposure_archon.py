@@ -107,7 +107,7 @@ class ExposureArchon(Exposure):
 
         self.exposure_flag = self.exposureflags["WRITING"]
 
-        if self.remote_imageserver_flag:
+        if self.send_image:
             LocalFile = self.temp_image_file + "." + self.get_extname(self.filetype)
             try:
                 os.remove(LocalFile)
@@ -202,9 +202,9 @@ class ExposureArchon(Exposure):
             azcam.log("Displaying image")
             azcam.api.display.display(LocalFile)
 
-        if self.remote_imageserver_flag:
+        if self.send_image:
             azcam.log("Sending image")
-            self.sendimage.send_image(LocalFile)
+            self.send_image(LocalFile)
 
         # increment file sequence number if image was written
         if self.save_file:
