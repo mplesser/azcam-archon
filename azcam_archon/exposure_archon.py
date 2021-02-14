@@ -29,9 +29,6 @@ class ExposureArchon(Exposure):
         # add extra extensions for additional non-image data
         self.add_extensions = 0
 
-        if "controller" in self.objects_init:
-            self.objects_init.remove("controller")
-
     def abort(self):
         """
         Abort an exposure in progress.
@@ -39,7 +36,7 @@ class ExposureArchon(Exposure):
         in during the exposure.
         """
 
-        azcam.api.controller.archon_command("RESETTIMING")
+        azcam.db.controller.archon_command("RESETTIMING")
 
         if self.exposure_flag != self.exposureflags["NONE"]:
             self.exposure_flag = self.exposureflags["ABORT"]
@@ -54,9 +51,9 @@ class ExposureArchon(Exposure):
         if self.exposure_flag != self.exposureflags["NONE"]:
             self.exposure_flag = self.exposureflags["READ"]
 
-        azcam.api.controller.archon_command("FASTLOADPARAM StopExposure 1")
+        azcam.db.controller.archon_command("FASTLOADPARAM StopExposure 1")
         time.sleep(0.1)
-        azcam.api.controller.archon_command("FASTLOADPARAM StopExposure 0")
+        azcam.db.controller.archon_command("FASTLOADPARAM StopExposure 0")
 
         return
 
@@ -78,16 +75,16 @@ class ExposureArchon(Exposure):
         self.dark_time_start = time.time()
         # azcam.log("Integration started")
 
-        azcam.api.controller.start_exposure(1)
+        azcam.db.controller.start_exposure(1)
 
         # dark time includes readout
         self.dark_time = time.time() - self.dark_time_start
 
         # turn off comp lamps
         if self.comp_exposure:
-            if not azcam.api.instrument.shutter_strobe:
-                azcam.api.instrument.comps_off()
-            azcam.api.instrument.set_active_comps("shutter")
+            if not azcam.db.instrument.shutter_strobe:
+                azcam.db.instrument.comps_off()
+            azcam.db.instrument.set_active_comps("shutter")
 
         # set times
         self.exposure_time_remaining = 0
@@ -130,7 +127,7 @@ class ExposureArchon(Exposure):
             dtype="uint16",
         )
 
-        self.fileconverter.copy_to_buffer(azcam.api.controller.imagedata, self.image.data)
+        self.fileconverter.copy_to_buffer(azcam.db.controller.imagedata, self.image.data)
 
         # why is this necessary?
         self.image.data.reshape(
@@ -142,10 +139,10 @@ class ExposureArchon(Exposure):
         self.image.overwrite = self.overwrite
         self.image.test_image = self.test_image
 
-        azcam.api.controller.set_keyword(
+        azcam.db.controller.set_keyword(
             "INTMS", self.fileconverter.intms, "Open shutter exposure time (ms)"
         )
-        azcam.api.controller.set_keyword(
+        azcam.db.controller.set_keyword(
             "NOINTMS", self.fileconverter.nointms, "Closed shutter exposure time (ms)"
         )
 
@@ -161,7 +158,7 @@ class ExposureArchon(Exposure):
         # add info data in extra extensions
         if self.add_extensions:
 
-            azcam.api.controller.get_status()  # get current controller data
+            azcam.db.controller.get_status()  # get current controller data
 
             # create data arrays
             keywords = []
@@ -169,9 +166,9 @@ class ExposureArchon(Exposure):
             datatypes = []
             units = []
             comments = []
-            for key in azcam.api.controller.dict_status:
+            for key in azcam.db.controller.dict_status:
                 keywords.append(key)
-                values.append(azcam.api.controller.dict_status[key])
+                values.append(azcam.db.controller.dict_status[key])
                 datatypes.append("datatype")
                 units.append("unit")
                 comments.append("comment")
@@ -200,7 +197,7 @@ class ExposureArchon(Exposure):
         # display image
         if self.display_image:
             azcam.log("Displaying image")
-            azcam.api.display.display(LocalFile)
+            azcam.db.display.display(LocalFile)
 
         if self.send_image:
             azcam.log("Sending image")
@@ -223,12 +220,12 @@ class ExposureArchon(Exposure):
         self.exposure_time_actual = self.exposure_time  # may be changed later
 
         if self.image_type == "zero":
-            azcam.api.controller.set_exposuretime(0)
-            azcam.api.controller.set_no_int_ms(0)
+            azcam.db.controller.set_exposuretime(0)
+            azcam.db.controller.set_no_int_ms(0)
             return
 
         # set timer and for header keyword
-        azcam.api.controller.set_exposuretime(int(self.exposure_time * 1000))
+        azcam.db.controller.set_exposuretime(int(self.exposure_time * 1000))
 
         # get shutter state
         try:
@@ -237,11 +234,11 @@ class ExposureArchon(Exposure):
             shutterstate = 1  # other types are comps, so open shutter
 
         if shutterstate:
-            azcam.api.controller.set_int_ms(int(self.exposure_time * 1000))
-            azcam.api.controller.set_no_int_ms(0)
+            azcam.db.controller.set_int_ms(int(self.exposure_time * 1000))
+            azcam.db.controller.set_no_int_ms(0)
         else:
-            azcam.api.controller.set_no_int_ms(int(self.exposure_time * 1000))
-            azcam.api.controller.set_int_ms(0)
+            azcam.db.controller.set_no_int_ms(int(self.exposure_time * 1000))
+            azcam.db.controller.set_int_ms(0)
 
         return
 
@@ -258,7 +255,7 @@ class ExposureArchon(Exposure):
         Return number of remaining pixels to be read.
         """
 
-        return azcam.api.controller.get_pixels_remaining()
+        return azcam.db.controller.get_pixels_remaining()
 
 
 class ArchonFileConverter(object):
@@ -360,18 +357,18 @@ class ArchonFileConverter(object):
         Last change: 21Dec2016 Zareba
         """
 
-        frameBase = "BUF%d" % (azcam.api.controller.read_buffer)
+        frameBase = "BUF%d" % (azcam.db.controller.read_buffer)
 
         self.NAMPS = self.numparamps * self.numseramps
-        self.NAXIS1 = int(azcam.api.controller.dict_frame[frameBase + "WIDTH"])
-        self.NAXIS2 = int(azcam.api.controller.dict_frame[frameBase + "HEIGHT"])
-        self.PIXELS = int(azcam.api.controller.dict_frame[frameBase + "PIXELS"])
-        self.LINES = int(azcam.api.controller.dict_frame[frameBase + "LINES"])
+        self.NAXIS1 = int(azcam.db.controller.dict_frame[frameBase + "WIDTH"])
+        self.NAXIS2 = int(azcam.db.controller.dict_frame[frameBase + "HEIGHT"])
+        self.PIXELS = int(azcam.db.controller.dict_frame[frameBase + "PIXELS"])
+        self.LINES = int(azcam.db.controller.dict_frame[frameBase + "LINES"])
 
         self.data_type = "<u2"
-        self.exptime = float(azcam.api.controller.int_ms / 1000)
-        self.intms = azcam.api.controller.int_ms
-        self.nointms = azcam.api.controller.noint_ms
+        self.exptime = float(azcam.db.controller.int_ms / 1000)
+        self.intms = azcam.db.controller.int_ms
+        self.nointms = azcam.db.controller.noint_ms
 
         # if self.NAMPS > 1 disassemble image
         # if self.NAMPS == 1:
@@ -516,32 +513,32 @@ class ReceiveDataArchon(object):
         # chunkSize = 1024 * BURST_LEN
         rawBlockSize = 2048
 
-        if azcam.api.controller.read_buffer > 0 and azcam.api.controller.read_buffer < 4:
+        if azcam.db.controller.read_buffer > 0 and azcam.db.controller.read_buffer < 4:
 
-            frameBase = "BUF%d" % (azcam.api.controller.read_buffer)
+            frameBase = "BUF%d" % (azcam.db.controller.read_buffer)
             frame = frameBase + "FRAME"
 
-            if int(azcam.api.controller.dict_frame[frame]) > 0:
+            if int(azcam.db.controller.dict_frame[frame]) > 0:
 
                 # frame buffer base address
-                addr = int(azcam.api.controller.dict_frame[frameBase + "BASE"])
+                addr = int(azcam.db.controller.dict_frame[frameBase + "BASE"])
                 # get frame width and height
-                frameW = int(azcam.api.controller.dict_frame[frameBase + "WIDTH"])
-                frameH = int(azcam.api.controller.dict_frame[frameBase + "HEIGHT"])
+                frameW = int(azcam.db.controller.dict_frame[frameBase + "WIDTH"])
+                frameH = int(azcam.db.controller.dict_frame[frameBase + "HEIGHT"])
                 # get sample mode
-                sampleMode = int(azcam.api.controller.dict_frame[frameBase + "SAMPLE"]) + 1
+                sampleMode = int(azcam.db.controller.dict_frame[frameBase + "SAMPLE"]) + 1
 
                 # calculate fetch command values
                 frameSize = sampleMode * 2 * frameW * frameH
                 lines = int((frameSize + lineSize - 1) / lineSize)
-                rawBlocks = int(azcam.api.controller.dict_frame[frameBase + "RAWBLOCKS"])
-                rawLines = int(azcam.api.controller.dict_frame[frameBase + "RAWLINES"])
+                rawBlocks = int(azcam.db.controller.dict_frame[frameBase + "RAWBLOCKS"])
+                rawLines = int(azcam.db.controller.dict_frame[frameBase + "RAWLINES"])
                 rawSize = rawBlocks * rawLines * rawBlockSize
-                rawOffset = int(azcam.api.controller.dict_frame[frameBase + "RAWOFFSET"])
+                rawOffset = int(azcam.db.controller.dict_frame[frameBase + "RAWOFFSET"])
 
                 cmd = "FETCH%08X%08X" % (addr, lines)
 
-                azcam.api.controller.archon_bin_command(cmd)
+                azcam.db.controller.archon_bin_command(cmd)
 
                 # frameSize = frameSize + 4
                 totalRecv = 0
@@ -562,7 +559,7 @@ class ReceiveDataArchon(object):
                 imgPix = frameSize / 2
 
                 while totalRecv < totalBytes:
-                    getData = azcam.api.controller.camserver.socket.recv(currLine)
+                    getData = azcam.db.controller.camserver.socket.recv(currLine)
 
                     totalRecv += len(getData)
 
@@ -599,16 +596,16 @@ class ReceiveDataArchon(object):
                 if totalRecv == totalBytes:
                     self.exposure.image.valid = 1
                     self.pixels_remaining = 0
-                    azcam.api.controller.imagedata = self.TData
+                    azcam.db.controller.imagedata = self.TData
                     self.exposure.image.data = self.TData
 
-                    if azcam.api.controller.rawdata_enable == 1:
+                    if azcam.db.controller.rawdata_enable == 1:
                         # receive rad data
                         lines = int((rawSize + lineSize - 1) / lineSize)
 
                         cmd = "FETCH%08X%08X" % (addr + rawOffset, lines)
 
-                        azcam.api.controller.archon_bin_command(cmd)
+                        azcam.db.controller.archon_bin_command(cmd)
 
                         # frameSize = frameSize + 4
                         totalRecv = 0
@@ -636,7 +633,7 @@ class ReceiveDataArchon(object):
                         self.RData = numpy.empty(shape=int(rawSize / 2), dtype="<u2")
 
                         while totalRecv < totalBytes:
-                            getData = azcam.api.controller.camserver.socket.recv(currLine)
+                            getData = azcam.db.controller.camserver.socket.recv(currLine)
 
                             totalRecv += len(getData)
 
@@ -675,7 +672,7 @@ class ReceiveDataArchon(object):
                                     totalRecv = totalBytes
 
                         if totalRecv == totalBytes:
-                            azcam.api.controller.rawdata = self.RData
+                            azcam.db.controller.rawdata = self.RData
 
                     return
 

@@ -7,7 +7,6 @@ from types import MethodType
 import inspect
 
 import azcam
-from azcam import api
 
 
 def get_cds(self):
@@ -15,7 +14,7 @@ def get_cds(self):
     Get the controller CDS values.
     """
 
-    reply = azcam.api.server.rcommand("controller.get_cds")
+    reply = azcam.db.api.server.rcommand("controller.get_cds")
 
     if not reply:
         return
@@ -49,9 +48,9 @@ def set_cds(self, taps, gains, offsets):
         s = "%s, %.01f, %05d" % (taps[i], gains[i], offsets[i])
         cds.append(s)
 
-    azcam.api.server.rcommand(f"controller.update_cds {cds}")
+    azcam.db.api.server.rcommand(f"controller.update_cds {cds}")
 
-    azcam.api.server.rcommand("controller.update_cds")
+    azcam.db.api.server.rcommand("controller.update_cds")
 
     return
 
@@ -132,4 +131,4 @@ def set_offsets(self, offset=1000):
 # add methods to api.controller
 for mod in inspect.getmembers(sys.modules[__name__]):
     if inspect.isfunction(mod[1]):
-        setattr(api.controller, mod[0], MethodType(mod[1], api.controller))
+        setattr(azcam.db.api.controller, mod[0], MethodType(mod[1], azcam.db.api.controller))
