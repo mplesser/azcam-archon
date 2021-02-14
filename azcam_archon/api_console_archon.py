@@ -1,5 +1,6 @@
 """
-Client-side commands for Archon controller.
+Client console commands for Archon controller.
+These methods are added to api.controller.
 """
 
 import sys
