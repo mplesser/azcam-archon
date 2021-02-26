@@ -132,4 +132,8 @@ def set_offsets(self, offset=1000):
 # add methods to api.controller
 for mod in inspect.getmembers(sys.modules[__name__]):
     if inspect.isfunction(mod[1]):
-        setattr(azcam.db.api.controller, mod[0], MethodType(mod[1], azcam.db.api.controller))
+        setattr(
+            azcam.get_objects("controller"),
+            mod[0],
+            MethodType(mod[1], azcam.get_objects("controller")),
+        )
