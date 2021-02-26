@@ -133,7 +133,7 @@ def set_offsets(self, offset=1000):
 for mod in inspect.getmembers(sys.modules[__name__]):
     if inspect.isfunction(mod[1]):
         setattr(
-            azcam.get_objects("controller"),
+            azcam.get_tools("controller"),
             mod[0],
-            MethodType(mod[1], azcam.get_objects("controller")),
+            MethodType(mod[1], azcam.get_tools("controller")),
         )
