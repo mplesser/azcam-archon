@@ -1,6 +1,6 @@
 """
 Client console commands for Archon controller.
-These methods are added to api.controller.
+These methods are added to the controller tool.
 """
 
 import sys
@@ -130,7 +130,7 @@ def set_offsets(self, offset=1000):
     return
 
 
-# add methods to api.controller
+# add methods to the controller tool
 for mod in inspect.getmembers(sys.modules[__name__]):
     if inspect.isfunction(mod[1]):
         setattr(
