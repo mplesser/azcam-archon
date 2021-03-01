@@ -1,5 +1,5 @@
 """
-Contains the base TempConArchon class.
+Contains the TempConArchon class.
 """
 
 import azcam
@@ -8,8 +8,7 @@ from azcam.tempcon import TempCon
 
 class TempConArchon(TempCon):
     """
-    Defines the Archon temperature control class.
-    Requires MOD2 to be the HEATERX board.
+    Defines the Archon temperature control tool.
     """
 
     def __init__(self, obj_id="tempcon", name="tempcon_archon"):
@@ -18,6 +17,7 @@ class TempConArchon(TempCon):
 
         self.num_temp_reads = 1
         self.control_temperature = -120.0
+        self.heaterx_board = "MOD2"
 
         self.last_temps = 3 * [self.bad_temp_value]  # last readings for during exposure
 
@@ -82,11 +82,11 @@ class TempConArchon(TempCon):
 
         # define dictionary entry
         if temperature_id == 0:
-            Address = "MOD2/TEMPA"
+            Address = f"{self.heaterx_board}/TEMPA"
         elif temperature_id == 1:
-            Address = "MOD2/TEMPB"
+            Address = f"{self.heaterx_board}/TEMPB"
         elif temperature_id == 2:
-            Address = "MOD2/TEMPC"
+            Address = f"{self.heaterx_board}/TEMPC"
         else:
             raise azcam.AzcamError("bad temperature_id")
 
