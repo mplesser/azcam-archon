@@ -16,7 +16,7 @@ def get_cds(self):
     """
 
     server = azcam.get_tools("server")
-    reply = server.rcommand("controller.get_cds")
+    reply = server.command("controller.get_cds")
 
     if not reply:
         return
@@ -51,8 +51,8 @@ def set_cds(self, taps, gains, offsets):
         cds.append(s)
 
     server = azcam.get_tools("server")
-    server.rcommand(f"controller.update_cds {cds}")
-    server.rcommand("controller.update_cds")
+    server.command(f"controller.update_cds {cds}")
+    server.command("controller.update_cds")
 
     return
 

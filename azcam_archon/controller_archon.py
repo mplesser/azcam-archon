@@ -42,6 +42,9 @@ class ControllerArchon(Controller):
 
         self.heater_board_installed = 0
 
+        # reset flag
+        self.reset_flag = 0  # 0 for soft reset, 1 to upload code
+
         # Status keywords
         self.status_valid = 0
         self.status_count = 0
@@ -785,19 +788,16 @@ class ControllerArchon(Controller):
 
         return self.archon_command(cmd)
 
-    def initialize(self, load_timing_file=0):
+    def initialize(self):
         """
-        Initializes the Archon controller: loads configuration data.
+        Initializes the Archon controller.
         """
-
-        # if self.initialized:
-        #    return
 
         # connect to controller
         self.connect()
 
         # load configuration file
-        self.update_config_data(load_timing_file)
+        self.update_config_data(self.reset_flag)
 
         # set some pars
         self.set_continuous_exposures(0)
@@ -1358,21 +1358,15 @@ class ControllerArchon(Controller):
 
         return self.archon_command(CommStr)
 
-    def reset(self, mode=-1):
+    def reset(self):
         """
         Resets controller.
-        mode = 0 -> soft reset (timing file not loaded)
-        mode = 1 -> full reset (load timing file)
-        mode = -1 -> use default mode for system
         """
-
-        if mode == -1:
-            mode = self.reset_flag
 
         self.is_reset = 0
 
         # initialize controller
-        self.initialize(mode)
+        self.initialize(self.reset_flag)
 
         self.is_reset = 1
 
