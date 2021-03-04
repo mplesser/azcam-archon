@@ -1366,7 +1366,7 @@ class ControllerArchon(Controller):
         self.is_reset = 0
 
         # initialize controller
-        self.initialize(self.reset_flag)
+        self.initialize()
 
         self.is_reset = 1
 
