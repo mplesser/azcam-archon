@@ -19,9 +19,9 @@ class ExposureArchon(Exposure):
     used in 'direct mode', communicating directly with the controller hardware.
     """
 
-    def __init__(self, obj_id="exposure", name="Exposure"):
+    def __init__(self, obj_id="exposure", description=None):
 
-        super().__init__(obj_id, name)
+        super().__init__(obj_id, description)
 
         self.receive_data = ReceiveDataArchon(self)
         self.fileconverter = ArchonFileConverter()

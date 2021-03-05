@@ -23,9 +23,9 @@ class ControllerArchon(Controller):
     The controller class for STA Archon controllers.
     """
 
-    def __init__(self, obj_id="controller", name="Controller"):
+    def __init__(self, obj_id="controller", description=None):
 
-        super().__init__(obj_id, name)
+        super().__init__(obj_id, description)
 
         self.controller_class = "archon"
         self.controller_type = "archon"

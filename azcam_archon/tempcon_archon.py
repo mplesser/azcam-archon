@@ -11,9 +11,9 @@ class TempConArchon(TempCon):
     Defines the Archon temperature control tool.
     """
 
-    def __init__(self, obj_id="tempcon", name="tempcon_archon"):
+    def __init__(self, obj_id="tempcon", description="Archon tempcon"):
 
-        super().__init__(obj_id, name)
+        super().__init__(obj_id, description)
 
         self.num_temp_reads = 1
         self.control_temperature = -120.0
