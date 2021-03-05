@@ -19,6 +19,8 @@ class TempConArchon(TempCon):
         self.control_temperature = -120.0
         self.heaterx_board = "MOD2"
 
+        self.temperature_ids = [0, 1]  # camtemp, dewtemp
+
         self.last_temps = 3 * [self.bad_temp_value]  # last readings for during exposure
 
         return
