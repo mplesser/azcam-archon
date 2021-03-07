@@ -15,8 +15,7 @@ def get_cds(self):
     Get the controller CDS values.
     """
 
-    server = azcam.get_tools("server")
-    reply = server.command("controller.get_cds")
+    reply = azcam.db.server.command("controller.get_cds")
 
     if not reply:
         return
@@ -50,9 +49,8 @@ def set_cds(self, taps, gains, offsets):
         s = "%s, %.01f, %05d" % (taps[i], gains[i], offsets[i])
         cds.append(s)
 
-    server = azcam.get_tools("server")
-    server.command(f"controller.update_cds {cds}")
-    server.command("controller.update_cds")
+    azcam.db.server.command(f"controller.update_cds {cds}")
+    azcam.db.server.command("controller.update_cds")
 
     return
 
@@ -134,7 +132,7 @@ def set_offsets(self, offset=1000):
 for mod in inspect.getmembers(sys.modules[__name__]):
     if inspect.isfunction(mod[1]):
         setattr(
-            azcam.get_tools("controller"),
+            azcam.db.controller,
             mod[0],
             MethodType(mod[1], azcam.get_tools("controller")),
         )
