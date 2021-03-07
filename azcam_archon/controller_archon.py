@@ -23,14 +23,14 @@ class ControllerArchon(Controller):
     The controller class for STA Archon controllers.
     """
 
-    def __init__(self, obj_id="controller", description=None):
+    def __init__(self, tool_id="controller", description=None):
 
-        super().__init__(obj_id, description)
+        super().__init__(tool_id, description)
 
         self.controller_class = "archon"
         self.controller_type = "archon"
 
-        azcam.db.objects_init.pop("controller", None)
+        azcam.db.tools_init.pop("controller", None)
 
         # Azcam connected to the controller
         self.connected_controller = 0
