@@ -25,15 +25,6 @@ class TempConArchon(TempCon):
 
         return
 
-    def set_control_temperature(self, temperature=None, temperature_id=0):
-        """
-        Set controller/detector control temperature.
-        Ignored if heater board is installed.
-        Temperature is temperature to set in Celsius.
-        """
-
-        return
-
     def get_temperature(self, temperature_id=0):
         """
         Read a camera temperature.
@@ -55,7 +46,7 @@ class TempConArchon(TempCon):
         if not azcam.db.controller.is_reset:
             return self.bad_temp_value
 
-        # define dictionary entry
+        temperature_id = int(temperature_id)
         if temperature_id == 0:
             Address = f"{self.heaterx_board}/TEMPA"
         elif temperature_id == 1:
@@ -63,7 +54,7 @@ class TempConArchon(TempCon):
         elif temperature_id == 2:
             Address = f"{self.heaterx_board}/TEMPC"
         else:
-            raise azcam.AzcamError("bad temperature_id")
+            raise azcam.AzcamError("bad temperature_id in get_temperature")
 
         # Don't read hardware while exposure is in progess
         flag = azcam.db.exposure.exposure_flag
