@@ -84,7 +84,7 @@ class ExposureArchon(Exposure):
         if self.comp_exposure:
             if not azcam.db.instrument.shutter_strobe:
                 azcam.db.instrument.comps_off()
-            azcam.db.instrument.set_active_comps("shutter")
+            azcam.db.instrument.set_comps("shutter")
 
         # set times
         self.exposure_time_remaining = 0
