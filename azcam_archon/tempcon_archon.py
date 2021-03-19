@@ -25,6 +25,17 @@ class TempConArchon(TempCon):
 
         return
 
+    def define_keywords(self):
+        """
+        Defines and resets instrument keywords.
+        """
+
+        self.set_keyword("CAMTEMP", 0.0, "Camera temperature", float)
+        self.set_keyword("DEWTEMP", "", "Dewar temperature", float)
+        self.set_keyword("TEMPUNIT", "C", "Temperature units", str)
+
+        return
+
     def get_temperature(self, temperature_id=0):
         """
         Read a camera temperature.
