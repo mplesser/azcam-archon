@@ -810,7 +810,7 @@ class ControllerArchon(Controller):
             azcam.log("Power status: ", self.power_status, level=2)
             self.power_on(1)
         elif self.power_status != "ON":
-            raise azcam.AzcamError("Bad power status")
+            raise azcam.AzcamError(f"Bad power status: {self.power_status}")
 
         self.initialized = 1
 
