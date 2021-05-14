@@ -602,7 +602,9 @@ class ControllerArchon(Controller):
         for param in range(0, paramCnt):
             paramStr = "PARAMETER" + str(param)
             paramName = self.dict_config[paramStr].split("=")[0].replace('"', "")
-            self.config_params.append(self.config_data[int(self.dict_wconfig[paramStr])])
+            self.config_params.append(
+                self.config_data[int(self.dict_wconfig[paramStr])]
+            )
             self.dict_params[paramName] = paramStr
 
         # update configuration data
@@ -627,20 +629,28 @@ class ControllerArchon(Controller):
 
         # extract exposure settings
         cont_exp = (
-            self.dict_config[self.dict_params["ContinuousExposures"]].replace('"', "").split("=")
+            self.dict_config[self.dict_params["ContinuousExposures"]]
+            .replace('"', "")
+            .split("=")
         )
         self.cont_exp = cont_exp[1]
 
-        Exp = self.dict_config[self.dict_params["Exposures"]].replace('"', "").split("=")
+        Exp = (
+            self.dict_config[self.dict_params["Exposures"]].replace('"', "").split("=")
+        )
         self.exp = Exp[1]
 
-        sweep_cnt = self.dict_config[self.dict_params["SweepCount"]].replace('"', "").split("=")
+        sweep_cnt = (
+            self.dict_config[self.dict_params["SweepCount"]].replace('"', "").split("=")
+        )
         self.sweep_cnt = sweep_cnt[1]
 
         IntMS = self.dict_config[self.dict_params["IntMS"]].replace('"', "").split("=")
         self.int_ms = int(IntMS[1])
 
-        NoIntMS = self.dict_config[self.dict_params["NoIntMS"]].replace('"', "").split("=")
+        NoIntMS = (
+            self.dict_config[self.dict_params["NoIntMS"]].replace('"', "").split("=")
+        )
         self.noint_ms = int(NoIntMS[1])
 
         # Config data is valid
@@ -852,9 +862,9 @@ class ControllerArchon(Controller):
             self.cont_exp = cont_exp
 
             # update config dictionary
-            self.dict_config[self.dict_params["ContinuousExposures"]] = "ContinuousExposures=%s" % (
-                self.int_ms
-            )
+            self.dict_config[
+                self.dict_params["ContinuousExposures"]
+            ] = "ContinuousExposures=%s" % (self.int_ms)
 
             # update Archons CountinuousExposures value
             indxParam = self.dict_wconfig[self.dict_params["ContinuousExposures"]]
@@ -973,7 +983,9 @@ class ControllerArchon(Controller):
             self.exp = Exp
 
             # update config dictionary
-            self.dict_config[self.dict_params["Exposures"]] = "Exposures=%s" % (self.exp)
+            self.dict_config[self.dict_params["Exposures"]] = "Exposures=%s" % (
+                self.exp
+            )
 
             # update Archons Exposures value
             indxParam = self.dict_wconfig[self.dict_params["Exposures"]]
@@ -1138,7 +1150,9 @@ class ControllerArchon(Controller):
             raise azcam.AzcamError("Configuration data not loaded")
 
         # update config dictionary
-        self.dict_config[self.dict_params["ParallelPumping"]] = "ParallelPumping=%s" % (str(flag))
+        self.dict_config[self.dict_params["ParallelPumping"]] = "ParallelPumping=%s" % (
+            str(flag)
+        )
 
         # update Archons IntMS value
         indxParam = self.dict_wconfig[self.dict_params["ParallelPumping"]]
@@ -1510,7 +1524,10 @@ class ControllerArchon(Controller):
                 # azcam.log(f"Integrating: {(time.time() - self.exp_start):.1f} secs", level=2)
 
             # check for abort
-            if azcam.db.exposure.exposure_flag == azcam.db.exposure.exposureflags["ABORT"]:
+            if (
+                azcam.db.exposure.exposure_flag
+                == azcam.db.exposure.exposureflags["ABORT"]
+            ):
                 stop = 1
 
             # Check if time out occured
@@ -1559,10 +1576,15 @@ class ControllerArchon(Controller):
                 cnt += 1
 
             if 1:
-                azcam.log(f"Reading: {(time.time() - self.read_time):.1f} secs", level=2)
+                azcam.log(
+                    f"Reading: {(time.time() - self.read_time):.1f} secs", level=2
+                )
 
             # check for abort
-            if azcam.db.exposure.exposure_flag == azcam.db.exposure.exposureflags["ABORT"]:
+            if (
+                azcam.db.exposure.exposure_flag
+                == azcam.db.exposure.exposureflags["ABORT"]
+            ):
                 dataReady = -1
                 break
 
