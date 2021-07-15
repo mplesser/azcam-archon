@@ -8,8 +8,8 @@ import time
 import numpy
 
 import azcam
-from azcam.exposure import Exposure
-from azcam.fits import pyfits
+from azcam.tools.exposure import Exposure
+from astropy.io import fits as pyfits
 
 
 class ExposureArchon(Exposure):
@@ -127,9 +127,7 @@ class ExposureArchon(Exposure):
             dtype="uint16",
         )
 
-        self.fileconverter.copy_to_buffer(
-            azcam.db.controller.imagedata, self.image.data
-        )
+        self.fileconverter.copy_to_buffer(azcam.db.controller.imagedata, self.image.data)
 
         # why is this necessary?
         self.image.data.reshape(
@@ -152,12 +150,8 @@ class ExposureArchon(Exposure):
         et = float(int(self.exposure_time_actual * 1000.0) / 1000.0)
         self.dark_time = et  # does not yet include pause/resume
         dt = float(int(self.dark_time * 1000.0) / 1000.0)
-        azcam.db.headers["exposure"].set_keyword(
-            "EXPTIME", et, "Exposure time (seconds)", float
-        )
-        azcam.db.headers["exposure"].set_keyword(
-            "DARKTIME", dt, "Dark time (seconds)", float
-        )
+        azcam.db.headers["exposure"].set_keyword("EXPTIME", et, "Exposure time (seconds)", float)
+        azcam.db.headers["exposure"].set_keyword("DARKTIME", dt, "Dark time (seconds)", float)
 
         self.image.write_file(LocalFile, self.filetype)
 
@@ -399,9 +393,7 @@ class ArchonFileConverter(object):
                 for posX in range(0, self.numseramps):
                     posAmp = posX + currPart
                     indxAmp = (
-                        (self.extpos_y[posAmp] - 1) * self.numseramps
-                        + self.extpos_x[posAmp]
-                        - 1
+                        (self.extpos_y[posAmp] - 1) * self.numseramps + self.extpos_x[posAmp] - 1
                     )
                     if self.amp_cfg[posAmp] == 0:
                         # no flip
@@ -534,9 +526,7 @@ class ReceiveDataArchon(object):
                 frameW = int(azcam.db.controller.dict_frame[frameBase + "WIDTH"])
                 frameH = int(azcam.db.controller.dict_frame[frameBase + "HEIGHT"])
                 # get sample mode
-                sampleMode = (
-                    int(azcam.db.controller.dict_frame[frameBase + "SAMPLE"]) + 1
-                )
+                sampleMode = int(azcam.db.controller.dict_frame[frameBase + "SAMPLE"]) + 1
 
                 # calculate fetch command values
                 frameSize = sampleMode * 2 * frameW * frameH
@@ -594,9 +584,7 @@ class ReceiveDataArchon(object):
                             )
 
                             lData = int(totalPix + pixCnt)
-                            self.TData[totalPix:lData] = ImageBufferTemp[
-                                0 : int(pixCnt)
-                            ]
+                            self.TData[totalPix:lData] = ImageBufferTemp[0 : int(pixCnt)]
                             totalPix += pixCnt
 
                             dataBuff = dataBuff[1028:]
@@ -645,9 +633,7 @@ class ReceiveDataArchon(object):
                         self.RData = numpy.empty(shape=int(rawSize / 2), dtype="<u2")
 
                         while totalRecv < totalBytes:
-                            getData = azcam.db.controller.camserver.socket.recv(
-                                currLine
-                            )
+                            getData = azcam.db.controller.camserver.socket.recv(currLine)
 
                             totalRecv += len(getData)
 
@@ -672,9 +658,7 @@ class ReceiveDataArchon(object):
                                     )
 
                                     lData = int(totalPix + pixCnt)
-                                    self.RData[totalPix:lData] = ImageBufferTemp[
-                                        0 : int(pixCnt)
-                                    ]
+                                    self.RData[totalPix:lData] = ImageBufferTemp[0 : int(pixCnt)]
                                     totalPix += pixCnt
 
                                     dataBuff = dataBuff[1028:]
